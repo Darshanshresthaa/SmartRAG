@@ -6,23 +6,9 @@ An intelligent Retrieval-Augmented Generation (RAG) application built with **Lan
 
 The pipeline is a LangGraph state machine with a human-in-the-loop checkpoint:
 
-```
-START
-  │
-  ▼
-Retriever_Node        → fetches top-k relevant chunks from the vector DB
-  │
-  ▼
-Decider_Node           → LLM judges if the retrieved context is enough to answer
-  │
-  ├── "answer" ──────────────────────► Document_Answer → Result_Display → END
-  │
-  └── "web_search" ──► HITL (asks for your yes/no approval)
-                          │
-                          ├── "no"  ───────────────────► Result_Display → END
-                          │
-                          └── "yes" ─► Enhance_query → web_search → Summarize_search → Result_Display → END
-```
+<p align="center">
+  <img src="assets/graph_diagram.png" alt="SmartRAG LangGraph pipeline diagram" width="420">
+</p>
 
 1. **Retrieve** — your question is embedded and matched against a local Chroma vector store built from your PDFs.
 2. **Decide** — an LLM call checks whether the retrieved chunks actually contain the answer.
@@ -38,6 +24,9 @@ SmartRAG/
 ├── notebook.py               # Thin interactive entrypoint for exploring the pipeline cell-by-cell
 ├── requirements.txt
 ├── .env                       # API keys (not committed)
+│
+├── assets/
+│   └── graph_diagram.png      # Rendered LangGraph pipeline diagram (used above)
 │
 ├── Schema_Class/
 │   └── class_schema.py        # Pydantic models: State, Decision, QueryRewrite, WebSearch
@@ -134,3 +123,9 @@ If the pipeline pauses for web search approval, `ask()` returns the interrupt pa
 - The vector store is built once and persisted to `./chroma_db`. Delete this folder if you want to rebuild it from scratch (e.g. after adding new PDFs).
 - The human-in-the-loop approval step uses LangGraph's `interrupt()`, backed by an in-memory checkpointer (`MemorySaver`). This means approval state does not persist across process restarts — it's meant for a single interactive session.
 - `.env` is gitignored — never commit API keys.
+- If you modify the graph structure in `graph/builder.py`, regenerate the diagram with:
+  ```python
+  from graph.builder import build_graph
+  graph = build_graph()
+  graph.get_graph().draw_mermaid_png(output_file_path="assets/graph_diagram.png")
+  ```
