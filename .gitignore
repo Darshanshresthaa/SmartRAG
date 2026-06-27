@@ -1,1 +1,36 @@
+# Environment variables / secrets
 .env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+*.egg
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Vector database (regenerated from documents/)
+chroma_db/
+
+# User-uploaded documents (personal/large files, not meant to be committed)
+documents/
+
+# Jupyter
+.ipynb_checkpoints/
+Untitled*.ipynb
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs / scratch output
+*.log
+output.txt

@@ -50,10 +50,26 @@ def ask(question: str, thread_id: str = "default-thread"):
 
 def main():
     setup()
-    question = input("Ask a question: ")
-    answer = ask(question)
-    print("\n--- ANSWER ---\n")
-    print(answer)
+
+    print("RAG Chatbot is ready!")
+    print("Type 'exit' to quit.\n")
+
+    while True:
+        question = input("Ask a question: ").strip()
+
+        if question.lower() == "exit":
+            print("Goodbye!")
+            break
+
+        if not question:
+            print("Please enter a question.\n")
+            continue
+
+        answer = ask(question)
+
+        print("\n--- ANSWER ---")
+        print(answer)
+        print()
 
 
 if __name__ == "__main__":

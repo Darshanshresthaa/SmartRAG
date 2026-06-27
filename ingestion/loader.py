@@ -13,38 +13,76 @@ DOCUMENTS_FOLDER = "documents"
 
 
 def ensure_documents_folder(folder_name: str = DOCUMENTS_FOLDER) -> str:
-    """Create the documents folder if it doesn't exist, and report status."""
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
-        print(f"Folder '{folder_name}' created.")
-    else:
-        print(f"Folder '{folder_name}' already exists.")
+    """Create the documents folder if it doesn't exist."""
+    os.makedirs(folder_name, exist_ok=True)
+    print(f"Documents folder: {folder_name}")
     return folder_name
 
 
 def list_documents(folder_name: str = DOCUMENTS_FOLDER) -> list[str]:
-    """List filenames currently inside the documents folder."""
-    files = os.listdir(folder_name)
+    """Return all files inside the documents folder."""
+    files = sorted(os.listdir(folder_name))
 
-    if len(files) == 0:
-        print(f"Folder '{folder_name}' doesn't contain any files.")
+    if not files:
+        print(f"No files found in '{folder_name}'.")
     else:
-        print(f"Folder contains {len(files)} file(s).")
-        for name in files:
-            print(name)
+        print(f"Found {len(files)} file(s):")
+        for file in files:
+            print(f"  • {file}")
 
     return files
 
 
 def load_pdfs(folder_name: str = DOCUMENTS_FOLDER) -> list:
-    """Load all PDF files in the documents folder into Document objects."""
+    """
+    Load every PDF inside the documents folder.
+
+    - Skips corrupted PDFs
+    - Continues loading remaining files
+    - Prints detailed errors
+    """
+
     files = list_documents(folder_name)
 
     docs = []
-    for file in files:
-        if file.endswith(".pdf"):
-            pdf_path = os.path.join(folder_name, file)
-            docs.extend(PyPDFLoader(pdf_path).load())
+    loaded_files = 0
+    failed_files = []
 
-    print(f"Loaded {len(docs)} pages.")
+    for file in files:
+
+        if not file.lower().endswith(".pdf"):
+            continue
+
+        pdf_path = os.path.join(folder_name, file)
+
+        print(f"\nLoading: {file}")
+
+        try:
+            loader = PyPDFLoader(pdf_path)
+            pdf_docs = loader.load()
+
+            docs.extend(pdf_docs)
+
+            loaded_files += 1
+
+            print(f"✓ Loaded {len(pdf_docs)} pages")
+
+        except Exception as e:
+            failed_files.append(file)
+
+            print(f"✗ Failed to load '{file}'")
+            print(f"Reason: {type(e).__name__}: {e}")
+
+    print("\n" + "=" * 50)
+    print("Loading Summary")
+    print("=" * 50)
+    print(f"PDFs loaded successfully : {loaded_files}")
+    print(f"PDFs failed             : {len(failed_files)}")
+    print(f"Total pages loaded      : {len(docs)}")
+
+    if failed_files:
+        print("\nFailed PDFs:")
+        for file in failed_files:
+            print(f" - {file}")
+
     return docs
