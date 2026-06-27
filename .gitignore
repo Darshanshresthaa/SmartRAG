@@ -20,8 +20,8 @@ chroma_db/
 documents/
 
 # Jupyter
-.ipynb_checkpoints/
-Untitled*.ipynb
+# .ipynb_checkpoints/
+# Untitled*.ipynb
 
 # Editor / IDE
 .vscode/
